@@ -1,7 +1,7 @@
 var model = {};
 var view = {};
 var omdbService = (function () {
-  var omdbUrl = 'http://www.omdbapi.com';
+  var omdbUrl = 'https://www.omdbapi.com';
   var API_KEY = '843baf87';
 
   var getMovies = function (nextPage, query, successCb, errorCb) {
@@ -16,6 +16,7 @@ var omdbService = (function () {
     };
 
     var parseError = function (data) {
+      console.log(data.Error);
       errorCb(data.Error);
     };
 
@@ -80,8 +81,6 @@ var handlers = (function () {
   };
 }());
 
-model.movies = [];
-
 view.render = function () {
   var movies = model.movies;
   $('#movie-list').html('');
@@ -97,8 +96,8 @@ view.drawMoreBtn = function () {
   handlers.getMore();
 };
 
-view.drawErrorNotif = function (e) {
-  var $notif = $('<div class="is-danger notification">' + e + '</div>');
+view.drawErrorNotif = function (text) {
+  var $notif = $('<div class="is-danger notification">' + text + '</div>');
   $('#movie-list').append($notif.hide().fadeIn(250));
   setTimeout(function () {
     $notif.fadeOut();
