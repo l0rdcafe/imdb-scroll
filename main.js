@@ -15,16 +15,15 @@ var omdbService = (function () {
       successCb(data.Search, _.toNumber(data.totalResults));
     };
 
-    var parseError = function (data) {
-      console.log(data.Error);
-      errorCb(data.Error);
+    var parseError = function (jqXHR, textStatus, i) {
+      errorCb('Request failed: ' + textStatus + ' ' + i);
     };
 
     $.getJSON({
       url: omdbUrl,
       data: requestData,
       success: parseMovies,
-      fail: parseError
+      error: parseError
     });
   };
   return {
@@ -35,6 +34,7 @@ var omdbService = (function () {
 var handlers = (function () {
   var handleSuccess = function (newMovies, total) {
     var pagesLeft = _.ceil(total / 10);
+    $('.fa-spinner').remove();
     newMovies.forEach(function (movie) {
       model.movies.push(movie);
     });
@@ -48,7 +48,7 @@ var handlers = (function () {
     }
   };
   var handleError = function (e) {
-    console.log(e);
+    $('.fa-spinner').remove();
     view.drawErrorNotif(e);
   };
 
@@ -60,7 +60,7 @@ var handlers = (function () {
         model.currentQuery = $('#movie-field').val();
         model.nextPage = 1;
         omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
-        view.render();
+        view.drawSpinner();
       }
     };
 
@@ -69,7 +69,7 @@ var handlers = (function () {
   var getMore = function () {
     var moreResults = function () {
       omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
-      view.render();
+      view.drawSpinner();
     };
 
     $('#more').on('click', moreResults);
@@ -102,6 +102,11 @@ view.drawErrorNotif = function (text) {
   setTimeout(function () {
     $notif.fadeOut();
   }, 2500);
+};
+
+view.drawSpinner = function () {
+  $('#movie-list').html('');
+  $('#movie-list').append('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
 };
 
 $(document).ready(function () {
