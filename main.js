@@ -10,15 +10,20 @@ var omdbService = (function () {
       s: query,
       apiKey: API_KEY
     };
+
+    var parseMovies = function (data) {
+      successCb(data.Search, _.toNumber(data.totalResults));
+    };
+
+    var parseError = function (data) {
+      errorCb(data.Error);
+    };
+
     $.getJSON({
       url: omdbUrl,
       data: requestData,
-      success: function (data) {
-        successCb(data.Search, _.toNumber(data.totalResults));
-      },
-      fail: function (data) {
-        errorCb(data.message);
-      }
+      success: parseMovies,
+      fail: parseError
     });
   };
   return {
@@ -34,9 +39,12 @@ var handlers = (function () {
     });
     if (pagesLeft > model.nextPage) {
       model.nextPage += 1;
+      view.render();
+      view.drawMoreBtn();
+    } else {
+      $('.button').remove();
+      view.render();
     }
-    view.render();
-    view.drawMoreBtn();
   };
   var handleError = function (e) {
     console.log(e);
@@ -63,7 +71,7 @@ var handlers = (function () {
       view.render();
     };
 
-    $('.button').on('click', moreResults);
+    $('#more').on('click', moreResults);
   };
 
   return {
