@@ -12,7 +12,11 @@ var omdbService = (function () {
     };
 
     var parseMovies = function (data) {
-      successCb(data.Search, _.toNumber(data.totalResults));
+      if (data.Search) {
+        successCb(data.Search, _.toNumber(data.totalResults));
+      } else {
+        successCb([], 0);
+      }
     };
 
     var parseError = function (jqXHR, textStatus, i) {
@@ -35,41 +39,44 @@ var handlers = (function () {
   var handleSuccess = function (newMovies, total) {
     var pagesLeft = _.ceil(total / 10);
     $('.fa-spinner').remove();
-    newMovies.forEach(function (movie) {
-      model.movies.push(movie);
-    });
-    if (pagesLeft > model.nextPage) {
-      model.nextPage += 1;
-      view.render();
-      view.drawMoreBtn();
+
+    if (total !== 0) {
+      newMovies.forEach(function (movie) {
+        model.movies.push(movie);
+      });
+      if (pagesLeft > model.nextPage) {
+        model.nextPage += 1;
+        view.render();
+        view.drawMoreBtn();
+      } else {
+        $('.button').remove();
+        view.render();
+      }
     } else {
-      $('.button').remove();
-      view.render();
+      view.drawErrorNotif('Could not find results for ' + model.currentQuery);
     }
   };
+
   var handleError = function (e) {
     $('.fa-spinner').remove();
     view.drawErrorNotif(e);
   };
 
   var newSearch = function () {
-    var firstSearch = function (e) {
-      var isEnterKey = e.keyCode === 13 || e.which === 13;
-      if (isEnterKey) {
-        model.movies = [];
-        model.currentQuery = $('#movie-field').val();
-        model.nextPage = 1;
-        omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
-        view.drawSpinner();
-      }
+    var firstSearch = function () {
+      view.drawSpinner();
+      model.movies = [];
+      model.currentQuery = $('#movie-field').val();
+      model.nextPage = 1;
+      omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
     };
 
-    $('#movie-field').on('keydown', firstSearch);
+    $('#movie-field').on('keydown', _.debounce(firstSearch, 2500));
   };
   var getMore = function () {
     var moreResults = function () {
-      omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
       view.drawSpinner();
+      omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
     };
 
     $('#more').on('click', moreResults);
@@ -83,7 +90,6 @@ var handlers = (function () {
 
 view.render = function () {
   var movies = model.movies;
-  $('#movie-list').html('');
 
   movies.forEach(function (movie) {
     $('#movie-list').append('<li class="movie">' + movie.Title + '<span class="date">' + movie.Year + '</li>');
