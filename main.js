@@ -99,7 +99,7 @@ view.render = function () {
     $('#movie-list').append('<li class="movie">' + movie.Title + '<span class="date">' + movie.Year + '</li>');
   };
 
-  if (listChildrenNum === 0 || movies.length === 10) {
+  if (listChildrenNum === 0 || movies.length <= 10) {
     $('#movie-list').html('');
     movies.forEach(drawMovies);
   } else {
