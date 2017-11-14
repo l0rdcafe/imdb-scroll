@@ -76,13 +76,15 @@ var handlers = (function () {
   };
   var getMore = function () {
     var moreResults = function () {
-      if ($(window).scrollTop() >= ($(document).height() - $(window).height())) {
+      var pxFromWindowToBtm = 0 + (($(document).height() - $(window).scrollTop()) - $(window).height());
+
+      if (pxFromWindowToBtm < 70) {
         view.drawSpinner();
         omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
       }
     };
 
-    $(window).on('scroll', _.debounce(moreResults, 600));
+    $(window).on('scroll', _.throttle(moreResults, 1000));
   };
 
   return {
