@@ -64,12 +64,15 @@ var handlers = (function () {
 
   var newSearch = function () {
     var firstSearch = function () {
-      view.drawSpinner();
-      model.movies = [];
-      model.currentQuery = $('#movie-field').val();
-      model.nextPage = 1;
-      omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
-      $('#movie-field').val('');
+      var movieVal = $('#movie-field').val();
+      if (movieVal.match(/^[a-z0-9]+$/i)) {
+        view.drawSpinner();
+        model.movies = [];
+        model.currentQuery = movieVal;
+        model.nextPage = 1;
+        $('#movie-field').val('');
+        omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
+      }
     };
 
     $('#movie-field').on('keydown', _.debounce(firstSearch, 400));
