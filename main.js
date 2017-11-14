@@ -78,13 +78,13 @@ var handlers = (function () {
     var moreResults = function () {
       var pxFromWindowToBtm = 0 + (($(document).height() - $(window).scrollTop()) - $(window).height());
 
-      if (pxFromWindowToBtm < 70) {
+      if (pxFromWindowToBtm < 50) {
         view.drawSpinner();
         omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
       }
     };
 
-    $(window).on('scroll', _.throttle(moreResults, 1000));
+    $(window).on('scroll', _.throttle(moreResults, 2400));
   };
 
   return {
