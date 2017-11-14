@@ -77,13 +77,12 @@ var handlers = (function () {
   var getMore = function () {
     var moreResults = function () {
       if ($(window).scrollTop() >= ($(document).height() - $(window).height())) {
-        console.log('hey');
         view.drawSpinner();
         omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
       }
     };
 
-    $(window).on('scroll', _.debounce(moreResults, 400));
+    $(window).on('scroll', _.debounce(moreResults, 600));
   };
 
   return {
@@ -96,7 +95,14 @@ view.render = function () {
   var movies = model.movies;
   var listChildrenNum = $('#movie-list').children().length;
   var drawMovies = function (movie) {
-    $('#movie-list').append('<li class="movie">' + movie.Title + '<span class="date">' + movie.Year + '</li>');
+    var moviePoster;
+
+    if (movie.Poster !== 'N/A') {
+      moviePoster = '<img class="column is-3 is-12-mobile" src="' + movie.Poster + '">';
+    } else {
+      moviePoster = '<img class="column is-3 is-12-mobile" src="' + view.notFound + '">';
+    }
+    $('#movie-list').append('<li class="movie columns column">' + moviePoster + '<span class="movie-title column is-5 is-12-mobile is-offset-2-tablet has-text-centered-mobile">' + movie.Title + '</span><span class="column is-2 is-12-mobile has-text-centered-mobile date">' + movie.Year + '</li>');
   };
 
   if (listChildrenNum === 0 || movies.length <= 10) {
@@ -109,15 +115,17 @@ view.render = function () {
 
 view.drawErrorNotif = function (text) {
   var $notif = $('<div class="is-danger notification">' + text + '</div>');
-  $('#movie-list').append($notif.hide().fadeIn(250));
+  $('#movie-list').before($notif.hide().fadeIn(250));
   setTimeout(function () {
     $notif.fadeOut();
   }, 2500);
 };
 
 view.drawSpinner = function () {
-  $('#movie-list').append('<span class="loading"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i><strong>Loading...</strong></span>');
+  $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i><strong>Loading...</strong></span>');
 };
+
+view.notFound = 'assets/notfound.jpg';
 
 $(document).ready(function () {
   handlers.newSearch();
