@@ -46,10 +46,7 @@ var handlers = (function () {
       });
       if (pagesLeft > model.nextPage) {
         model.nextPage += 1;
-        view.render();
-        view.drawMoreBtn();
-      } else {
-        $('.button').remove();
+        handlers.getMore();
         view.render();
       }
     } else {
@@ -65,7 +62,7 @@ var handlers = (function () {
   var newSearch = function () {
     var firstSearch = function () {
       var movieVal = $('#movie-field').val();
-      if (movieVal.match(/^[a-z0-9]+$/i)) {
+      if (movieVal.match(/^[a-z0-9]+( [a-z0-9]+)*$/i)) {
         view.drawSpinner();
         model.movies = [];
         model.currentQuery = movieVal;
@@ -79,11 +76,14 @@ var handlers = (function () {
   };
   var getMore = function () {
     var moreResults = function () {
-      view.drawSpinner();
-      omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
+      if ($(window).scrollTop() >= ($(document).height() - $(window).height())) {
+        console.log('hey');
+        view.drawSpinner();
+        omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
+      }
     };
 
-    $('#more').on('click', moreResults);
+    $(window).on('scroll', _.debounce(moreResults, 400));
   };
 
   return {
@@ -105,12 +105,6 @@ view.render = function () {
   } else {
     movies.slice(listChildrenNum).forEach(drawMovies);
   }
-};
-
-view.drawMoreBtn = function () {
-  $('#more').remove();
-  $('#movie-list').append('<button class="button" id="more">Get More</button>');
-  handlers.getMore();
 };
 
 view.drawErrorNotif = function (text) {
