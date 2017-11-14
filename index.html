@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hello Bulma!</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
   <link rel="stylesheet" href="style.min.css">
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
@@ -15,13 +15,20 @@
 <body>
   <section class="section">
     <div class="container">
+      <nav class="navbar is-fixed-top is-primary">
+        <div class="navbar-start">
+          <div class="navbar-item has-navbar-fixed-top">
+      <input class="input" id="movie-field">
+    </div>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item has-navbar-fixed-top">
       <h1 class="title">
-        Hello World
+        IMDB Lib
       </h1>
-      <p class="subtitle">
-        My first website with <strong>Bulma</strong>!
-      </p>
-      <input id="movie-field" class="input">
+    </div>
+    </div>
+    </nav>
       <ul id="movie-list">
       </ul>
     </div>

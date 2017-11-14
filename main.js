@@ -38,7 +38,7 @@ var omdbService = (function () {
 var handlers = (function () {
   var handleSuccess = function (newMovies, total) {
     var pagesLeft = _.ceil(total / 10);
-    $('.fa-spinner').remove();
+    $('.loading').remove();
 
     if (total !== 0) {
       newMovies.forEach(function (movie) {
@@ -58,7 +58,7 @@ var handlers = (function () {
   };
 
   var handleError = function (e) {
-    $('.fa-spinner').remove();
+    $('.loading').remove();
     view.drawErrorNotif(e);
   };
 
@@ -69,9 +69,10 @@ var handlers = (function () {
       model.currentQuery = $('#movie-field').val();
       model.nextPage = 1;
       omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
+      $('#movie-field').val('');
     };
 
-    $('#movie-field').on('keydown', _.debounce(firstSearch, 2500));
+    $('#movie-field').on('keydown', _.debounce(firstSearch, 400));
   };
   var getMore = function () {
     var moreResults = function () {
@@ -90,10 +91,17 @@ var handlers = (function () {
 
 view.render = function () {
   var movies = model.movies;
-
-  movies.forEach(function (movie) {
+  var listChildrenNum = $('#movie-list').children().length;
+  var drawMovies = function (movie) {
     $('#movie-list').append('<li class="movie">' + movie.Title + '<span class="date">' + movie.Year + '</li>');
-  });
+  };
+
+  if (listChildrenNum === 0 || movies.length === 10) {
+    $('#movie-list').html('');
+    movies.forEach(drawMovies);
+  } else {
+    movies.slice(listChildrenNum).forEach(drawMovies);
+  }
 };
 
 view.drawMoreBtn = function () {
@@ -111,8 +119,7 @@ view.drawErrorNotif = function (text) {
 };
 
 view.drawSpinner = function () {
-  $('#movie-list').html('');
-  $('#movie-list').append('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
+  $('#movie-list').append('<span class="loading"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i><strong>Loading...</strong></span>');
 };
 
 $(document).ready(function () {
