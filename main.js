@@ -47,11 +47,11 @@ var handlers = (function () {
       if (pagesLeft > model.nextPage) {
         model.nextPage += 1;
         handlers.getMore();
-        view.render();
       }
     } else {
       view.drawErrorNotif('Could not find results for ' + model.currentQuery);
     }
+    view.render();
   };
 
   var handleError = function (e) {
