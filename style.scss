@@ -2,6 +2,10 @@
   width: 20%;
   margin: auto;
   margin-top: 2rem;
+
+  @media (max-width: 767px) {
+    margin-top: 5rem;
+  }
 }
 
 .title {

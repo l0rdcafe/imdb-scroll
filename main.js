@@ -116,7 +116,7 @@ view.render = function () {
 };
 
 view.drawErrorNotif = function (text) {
-  var $notif = $('<div class="is-danger notification">' + text + '</div>');
+  var $notif = $('<div class="is-danger notification column is-8-mobile">' + text + '</div>');
   $('#movie-list').before($notif.hide().fadeIn(250));
   setTimeout(function () {
     $notif.fadeOut();
