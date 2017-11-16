@@ -124,6 +124,9 @@ view.drawErrorNotif = function (text) {
 };
 
 view.drawSpinner = function () {
+  if ($('.loading').length > 1) {
+    $('.loading').remove();
+  }
   $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i><strong>Loading...</strong></span>');
 };
 
