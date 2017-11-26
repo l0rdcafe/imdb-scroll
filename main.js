@@ -4,31 +4,38 @@ var omdbService = (function () {
   var omdbUrl = 'https://www.omdbapi.com';
   var API_KEY = '843baf87';
 
-  var getMovies = function (nextPage, query, successCb, errorCb) {
-    var requestData = {
-      page: nextPage,
-      s: query,
-      apiKey: API_KEY
-    };
+  var getMovies = function (nextPage, query) {
+    function getMovieByQuery() {
+      return fetch(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY, {
+        headers: {
+          Accept: 'application/json'
+        }
+      });
+    }
 
-    var parseMovies = function (data) {
-      if (data.Search) {
-        successCb(data.Search, _.toNumber(data.totalResults));
-      } else {
-        successCb([], 0);
+    function getMoviePlotByImdbId(id) {
+      return fetch(omdbUrl + '?page=' + nextPage + '&i=' + id + '&apiKey=' + API_KEY);
+    }
+
+    function getMoviePlots(res) {
+      if (res.status === 200) {
+        console.log(res);
+        return Promise.all(res.map(function (m) {
+          return getMoviePlotByImdbId(m.ImdbId);
+        }));
       }
-    };
+    }
 
-    var parseError = function (jqXHR, textStatus, i) {
-      errorCb('Request failed: ' + textStatus + ' ' + i);
-    };
-
-    $.getJSON({
-      url: omdbUrl,
-      data: requestData,
-      success: parseMovies,
-      error: parseError
-    });
+    return getMovieByQuery()
+      .then(function (movies) {
+        return getMoviePlots(movies);
+      })
+      .then(function (moviesRes) {
+        return parseMoviePlots(moviesRes);
+      })
+      .catch(function (err) {
+        return Promise.reject(err);
+      });
   };
   return {
     getMovies: getMovies
@@ -68,7 +75,8 @@ var handlers = (function () {
         model.currentQuery = movieVal;
         model.nextPage = 1;
         $('#movie-field').val('');
-        omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
+
+        omdbService.getMovies(model.nextPage, model.currentQuery);
       }
     };
 
@@ -127,7 +135,7 @@ view.drawSpinner = function () {
   if ($('.loading').length > 1) {
     $('.loading').remove();
   }
-  $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i><strong>Loading...</strong></span>');
+  $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin fa-lg" aria-hidden="true"></i></span>');
 };
 
 view.notFound = 'assets/notfound.jpg';
