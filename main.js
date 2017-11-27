@@ -7,12 +7,12 @@ var OMDBService = (function () {
   var getMovies = function (nextPage, query) {
     function getJSON(url) {
       return fetch(url)
-          .then(function (req) {
-            return req.json();
-          })
-          .catch(function (err) {
-            return Promise.reject(err);
-          });
+        .then(function (req) {
+          return req.json();
+        })
+        .catch(function (err) {
+          return Promise.reject(err);
+        });
     }
     function getMovieByQuery() {
       return getJSON(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY);
@@ -174,9 +174,6 @@ view.drawErrorNotif = function (text) {
 };
 
 view.drawSpinner = function () {
-  if ($('.loading').length > 1) {
-    $('.loading').remove();
-  }
   $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin fa-lg" aria-hidden="true"></i></span>');
 };
 
