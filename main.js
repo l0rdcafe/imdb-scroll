@@ -5,14 +5,17 @@ var omdbService = (function () {
   var API_KEY = '843baf87';
 
   var getMovies = function (nextPage, query) {
+    function getJson(url) {
+      return fetch(url)
+          .then(function (req) {
+            return req.json();
+          })
+          .catch(function (err) {
+            return Promise.reject(err);
+          });
+    }
     function getMovieByQuery() {
-      return fetch(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY)
-        .then(function (req) {
-          return req.json();
-        })
-        .catch(function (err) {
-          return Promise.reject(err);
-        });
+      return getJson(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY);
     }
 
     function parseSearchResponse(res) {
@@ -27,13 +30,7 @@ var omdbService = (function () {
       var total = parseInt(res.totalResults, 10);
 
       var movieFetches = movies.map(function (movie) {
-        return fetch(omdbUrl + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY)
-          .then(function (req) {
-            return req.json();
-          })
-          .catch(function (err) {
-            return Promise.reject(err);
-          });
+        return getJson(omdbUrl + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY);
       });
 
       return Promise.all(movieFetches)
