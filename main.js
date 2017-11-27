@@ -1,6 +1,6 @@
 var model = {};
 var view = {};
-var omdbService = (function () {
+var OMDBService = (function () {
   var omdbUrl = 'https://www.omdbapi.com';
   var API_KEY = '843baf87';
 
@@ -91,7 +91,7 @@ var handlers = (function () {
         model.nextPage = 1;
         $('#movie-list').val('');
 
-        omdbService.getMovies(model.nextPage, model.currentQuery)
+        OMDBService.getMovies(model.nextPage, model.currentQuery)
           .then(processMovies)
           .catch(handleError);
       }
@@ -111,7 +111,7 @@ var handlers = (function () {
       if (pxFromWindowToBtm < 50) {
         isFetching = true;
         view.drawSpinner();
-        omdbService.getMovies(model.nextPage, model.currentQuery)
+        OMDBService.getMovies(model.nextPage, model.currentQuery)
           .then(function (res) {
             processMovies(res);
             isFetching = false;
