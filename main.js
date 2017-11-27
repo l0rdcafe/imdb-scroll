@@ -5,45 +5,49 @@ var omdbService = (function () {
   var API_KEY = '843baf87';
 
   var getMovies = function (nextPage, query) {
-    debugger;
     function getMovieByQuery() {
-      return fetch(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY, {
-        headers: {
-          Accept: 'application/json'
-        }
-      });
+      return fetch(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY)
+        .then(function (req) {
+          return req.json();
+        })
+        .catch(function (err) {
+          return Promise.reject(err);
+        });
     }
 
-    function parseResults(response) {
-      return response.json();
-    }
-
-    function parseResultsArray(response) {
-      return reponse.map(function (r) {
-        return r.json();
-      });
-    }
-
-    function parseMovies(movies) {
-      if (movies.Search) {
-        return getMoviePlots(movies.Search);
+    function parseSearchResponse(res) {
+      if (res.Response === 'False') {
+        return Promise.reject(new Error(res.Error));
       }
+      return res;
     }
 
-    function getMoviePlotByImdbId(id) {
-      return fetch(omdbUrl + '?page=' + nextPage + '&i=' + id + '&apiKey=' + API_KEY);
-    }
+    function getMoviePlots(res) {
+      var movies = res.Search;
+      var total = parseInt(res.totalResults, 10);
 
-    function getMoviePlots(movies) {
-      return Promise.all(movies.map(function (m) {
-        return getMoviePlotByImdbId(m.imdbID);
-      }));
+      var movieFetches = movies.map(function (movie) {
+        return fetch(omdbUrl + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY);
+      })
+      .then(function (req) {
+        return req.json();
+      })
+      .catch(function (err) {
+        return Promise.reject(err);
+      });
+
+      return Promise.all(movieFetches)
+        .then(function (moviesWithPlots) {
+          return { movies: moviesWithPlots, total: total };
+        })
+        .catch(function (err) {
+          Promise.reject(err);
+        });
     }
 
     return getMovieByQuery()
-      .then(parseResults)
-      .then(parseMovies)
-      .then(parseResults)
+      .then(parseSearchResponse)
+      .then(getMoviePlots)
       .catch(function (err) {
         return Promise.reject(err);
       });
@@ -54,11 +58,13 @@ var omdbService = (function () {
 }());
 
 var handlers = (function () {
-  var handleSuccess = function (newMovies, total) {
-    var pagesLeft = _.ceil(total / 10);
+  var processMovies = function (results) {
+    var newMovies = results.movies;
+    var pagesLeft = _.ceil(results.total / 10);
+
     $('.loading').remove();
 
-    if (total !== 0) {
+    if (results.total !== 0) {
       newMovies.forEach(function (movie) {
         model.movies.push(movie);
       });
@@ -85,9 +91,11 @@ var handlers = (function () {
         model.movies = [];
         model.currentQuery = movieVal;
         model.nextPage = 1;
-        $('#movie-field').val('');
+        $('#movie-list').val('');
 
-        omdbService.getMovies(model.nextPage, model.currentQuery);
+        omdbService.getMovies(model.nextPage, model.currentQuery)
+          .then(processMovies)
+          .catch(handleError);
       }
     };
 
@@ -99,7 +107,9 @@ var handlers = (function () {
 
       if (pxFromWindowToBtm < 50) {
         view.drawSpinner();
-        omdbService.getMovies(model.nextPage, model.currentQuery, handleSuccess, handleError);
+        omdbService.getMovies(model.nextPage, model.currentQuery)
+          .then(processMovies)
+          .catch(handleError);
       }
     };
 
