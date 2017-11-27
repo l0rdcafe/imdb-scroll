@@ -49,8 +49,7 @@ var omdbService = (function () {
       .then(parseSearchResponse)
       .then(getMoviePlots)
       .catch(function (err) {
-        console.log(err);
-        return Promise.reject('No results found for ' + model.currentQuery);
+        return Promise.reject(err);
       });
   };
   return {
@@ -59,6 +58,7 @@ var omdbService = (function () {
 }());
 
 var handlers = (function () {
+  var isFetching = false;
   var processMovies = function (results) {
     var newMovies = results.movies;
     var pagesLeft = _.ceil(results.total / 10);
@@ -102,15 +102,27 @@ var handlers = (function () {
 
     $('#movie-field').on('keydown', _.debounce(firstSearch, 400));
   };
+
   var getMore = function () {
     var moreResults = function () {
       var pxFromWindowToBtm = 0 + (($(document).height() - $(window).scrollTop()) - $(window).height());
 
+      if (isFetching) {
+        return;
+      }
+
       if (pxFromWindowToBtm < 50) {
+        isFetching = true;
         view.drawSpinner();
         omdbService.getMovies(model.nextPage, model.currentQuery)
-          .then(processMovies)
-          .catch(handleError);
+          .then(function (res) {
+            processMovies(res);
+            isFetching = false;
+          })
+          .catch(function (err) {
+            handleError(err);
+            isFetching = false;
+          });
       }
     };
 
