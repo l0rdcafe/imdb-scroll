@@ -1,1 +1,1 @@
-.notification{width:20%;margin:auto;margin-top:2rem}@media (max-width: 767px){.notification{margin-top:5rem}}.title{color:yellow}img{width:25%}.date{color:#aaaaa7}.xcentered{display:block;margin:auto}#movie-list{margin-top:5rem}.loading{width:100%}
+.notification{width:20%;margin:auto;margin-top:2rem}@media (max-width: 767px){.notification{margin-top:5rem}}.title{color:yellow}.movie-title{color:#23b1ac;font-size:1.5rem}.subtitle{font-size:1rem}img{width:25%}.date{color:#aaaaa7}.xcentered{display:block;margin:auto}#movie-list{margin-top:5rem}.loading{width:100%}

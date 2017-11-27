@@ -27,13 +27,13 @@ var omdbService = (function () {
       var total = parseInt(res.totalResults, 10);
 
       var movieFetches = movies.map(function (movie) {
-        return fetch(omdbUrl + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY);
-      })
-      .then(function (req) {
-        return req.json();
-      })
-      .catch(function (err) {
-        return Promise.reject(err);
+        return fetch(omdbUrl + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY)
+          .then(function (req) {
+            return req.json();
+          })
+          .catch(function (err) {
+            return Promise.reject(err);
+          });
       });
 
       return Promise.all(movieFetches)
@@ -49,7 +49,8 @@ var omdbService = (function () {
       .then(parseSearchResponse)
       .then(getMoviePlots)
       .catch(function (err) {
-        return Promise.reject(err);
+        console.log(err);
+        return Promise.reject('No results found for ' + model.currentQuery);
       });
   };
   return {
@@ -127,13 +128,24 @@ view.render = function () {
   var listChildrenNum = $('#movie-list').children().length;
   var drawMovies = function (movie) {
     var moviePoster;
+    var moviePlot;
+    var movieRating;
 
     if (movie.Poster !== 'N/A') {
       moviePoster = '<img class="column is-3 is-12-mobile" src="' + movie.Poster + '">';
     } else {
       moviePoster = '<img class="column is-3 is-12-mobile" src="' + view.notFound + '">';
     }
-    $('#movie-list').append('<li class="movie columns column">' + moviePoster + '<span class="movie-title column is-5 is-12-mobile is-offset-2-tablet has-text-centered-mobile">' + movie.Title + '</span><span class="column is-2 is-12-mobile has-text-centered-mobile date">' + movie.Year + '</li>');
+
+    if (movie.Plot) {
+      moviePlot = '<p class="subtitle has-text-centered-mobile">' + movie.Plot + '</p>';
+    }
+
+    if (movie.imdbRating) {
+      movieRating = '<span class="column is-1 has-text-centered">' + movie.imdbRating + '/10</span>';
+    }
+
+    $('#movie-list').append('<li class="movie columns column">' + moviePoster + '<span class="movie-title column is-5 is-12-mobile has-text-centered-mobile">' + movie.Title + moviePlot + '</span><span class="column is-2 is-offset-1-tablet is-12-mobile has-text-centered-mobile date">' + movie.Year + '</span>' + movieRating + '</li>');
   };
 
   if (listChildrenNum === 0 || movies.length <= 10) {
