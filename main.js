@@ -1,7 +1,101 @@
-var model = {};
-var view = {};
-var OMDBService = (function () {
-  var omdbUrl = 'https://www.omdbapi.com';
+var model = (function () {
+  var movies = [];
+  var nextPage = 1;
+  var currentQuery = '';
+
+  var appendMovies = function (movieList) {
+    movieList.forEach(function (movie) {
+      model.movies.push(movie);
+    });
+  };
+
+  var incrementPage = function () {
+    model.nextPage += 1;
+  };
+
+  var resetMovies = function () {
+    model.movies = [];
+    model.nextPage = 1;
+    model.currentQuery = '';
+  };
+
+  var setQuery = function (query) {
+    model.currentQuery = query;
+  };
+
+
+  return {
+    movies: movies,
+    nextPage: nextPage,
+    currentQuery: currentQuery,
+    appendMovies: appendMovies,
+    incrementPage: incrementPage,
+    resetMovies: resetMovies,
+    setQuery: setQuery
+  };
+}());
+
+var view = (function () {
+  var notFound = 'assets/notfound.jpg';
+  var render = function () {
+    var movies = model.movies;
+    var listChildrenNum = $('#movie-list').children().length;
+    var drawMovies = function (movie) {
+      var moviePoster;
+      var moviePlot;
+      var movieRating;
+
+      if (movie.Poster !== 'N/A') {
+        moviePoster = '<img class="column is-3 is-12-mobile" src="' + movie.Poster + '">';
+      } else {
+        moviePoster = '<img class="column is-3 is-12-mobile" src="' + notFound + '">';
+      }
+
+      if (movie.Plot) {
+        moviePlot = '<p class="subtitle has-text-centered-mobile">' + movie.Plot + '</p>';
+      }
+
+      if (movie.imdbRating) {
+        movieRating = '<span class="column is-1 has-text-centered">' + movie.imdbRating + '/10</span>';
+      }
+
+      $('#movie-list').append('<li class="movie columns column">' + moviePoster + '<span class="movie-title column is-5 is-12-mobile has-text-centered-mobile">' + movie.Title + moviePlot + '</span><span class="column is-2 is-offset-1-tablet is-12-mobile has-text-centered-mobile date">' + movie.Year + '</span>' + movieRating + '</li>');
+    };
+
+    if (listChildrenNum === 0 || movies.length <= 10) {
+      $('#movie-list').html('');
+      movies.forEach(drawMovies);
+    } else {
+      movies.slice(listChildrenNum).forEach(drawMovies);
+    }
+  };
+
+  var drawSpinner = function () {
+    $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin fa-lg" aria-hidden="true"></i></spa`n>');
+  };
+
+  var removeSpinner = function () {
+    $('.loading').remove();
+  };
+
+  var drawErrorNotif = function (text) {
+    var $notif = $('<div class="is-danger notification column is-8-mobile">' + text + '</div>');
+    $('#movie-list').before($notif.hide().fadeIn(250));
+    setTimeout(function () {
+      $notif.fadeOut();
+    }, 2500);
+  };
+
+  return {
+    render: render,
+    drawSpinner: drawSpinner,
+    removeSpinner: removeSpinner,
+    drawErrorNotif: drawErrorNotif
+  };
+}());
+
+var OMDBApi = (function () {
+  var OMDB_URL = 'https://www.omdbapi.com';
   var API_KEY = '843baf87';
 
   var getMovies = function (nextPage, query) {
@@ -15,7 +109,7 @@ var OMDBService = (function () {
         });
     }
     function getMovieByQuery() {
-      return getJSON(omdbUrl + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY);
+      return getJSON(OMDB_URL + '?page=' + nextPage + '&s=' + query + '&apiKey=' + API_KEY);
     }
 
     function parseSearchResponse(res) {
@@ -30,7 +124,7 @@ var OMDBService = (function () {
       var total = parseInt(res.totalResults, 10);
 
       var movieFetches = movies.map(function (movie) {
-        return getJSON(omdbUrl + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY);
+        return getJSON(OMDB_URL + '?page=' + nextPage + '&i=' + movie.imdbID + '&apiKey=' + API_KEY);
       });
 
       return Promise.all(movieFetches)
@@ -60,14 +154,12 @@ var handlers = (function () {
     var newMovies = results.movies;
     var pagesLeft = _.ceil(results.total / 10);
 
-    $('.loading').remove();
+    view.removeSpinner();
 
     if (results.total !== 0) {
-      newMovies.forEach(function (movie) {
-        model.movies.push(movie);
-      });
+      model.appendMovies(newMovies);
       if (pagesLeft > model.nextPage) {
-        model.nextPage += 1;
+        model.incrementPage();
         handlers.getMore();
       }
     } else {
@@ -77,7 +169,7 @@ var handlers = (function () {
   };
 
   var handleError = function (e) {
-    $('.loading').remove();
+    view.removeSpinner();
     view.drawErrorNotif(e);
   };
 
@@ -86,12 +178,11 @@ var handlers = (function () {
       var movieVal = $('#movie-field').val();
       if (movieVal.match(/^[a-z0-9]+( [a-z0-9]+)*$/i)) {
         view.drawSpinner();
-        model.movies = [];
-        model.currentQuery = movieVal;
-        model.nextPage = 1;
+        model.resetMovies();
+        model.setQuery(movieVal);
         $('#movie-list').val('');
 
-        OMDBService.getMovies(model.nextPage, model.currentQuery)
+        OMDBApi.getMovies(model.nextPage, model.currentQuery)
           .then(processMovies)
           .catch(handleError);
       }
@@ -111,7 +202,7 @@ var handlers = (function () {
       if (pxFromWindowToBtm < 50) {
         isFetching = true;
         view.drawSpinner();
-        OMDBService.getMovies(model.nextPage, model.currentQuery)
+        OMDBApi.getMovies(model.nextPage, model.currentQuery)
           .then(function (res) {
             processMovies(res);
             isFetching = false;
@@ -131,53 +222,6 @@ var handlers = (function () {
     getMore: getMore
   };
 }());
-
-view.render = function () {
-  var movies = model.movies;
-  var listChildrenNum = $('#movie-list').children().length;
-  var drawMovies = function (movie) {
-    var moviePoster;
-    var moviePlot;
-    var movieRating;
-
-    if (movie.Poster !== 'N/A') {
-      moviePoster = '<img class="column is-3 is-12-mobile" src="' + movie.Poster + '">';
-    } else {
-      moviePoster = '<img class="column is-3 is-12-mobile" src="' + view.notFound + '">';
-    }
-
-    if (movie.Plot) {
-      moviePlot = '<p class="subtitle has-text-centered-mobile">' + movie.Plot + '</p>';
-    }
-
-    if (movie.imdbRating) {
-      movieRating = '<span class="column is-1 has-text-centered">' + movie.imdbRating + '/10</span>';
-    }
-
-    $('#movie-list').append('<li class="movie columns column">' + moviePoster + '<span class="movie-title column is-5 is-12-mobile has-text-centered-mobile">' + movie.Title + moviePlot + '</span><span class="column is-2 is-offset-1-tablet is-12-mobile has-text-centered-mobile date">' + movie.Year + '</span>' + movieRating + '</li>');
-  };
-
-  if (listChildrenNum === 0 || movies.length <= 10) {
-    $('#movie-list').html('');
-    movies.forEach(drawMovies);
-  } else {
-    movies.slice(listChildrenNum).forEach(drawMovies);
-  }
-};
-
-view.drawErrorNotif = function (text) {
-  var $notif = $('<div class="is-danger notification column is-8-mobile">' + text + '</div>');
-  $('#movie-list').before($notif.hide().fadeIn(250));
-  setTimeout(function () {
-    $notif.fadeOut();
-  }, 2500);
-};
-
-view.drawSpinner = function () {
-  $('#movie-list').append('<span class="xcentered has-text-centered loading"><i class="fa fa-spinner fa-spin fa-lg" aria-hidden="true"></i></span>');
-};
-
-view.notFound = 'assets/notfound.jpg';
 
 $(document).ready(function () {
   handlers.newSearch();
