@@ -1,0 +1,23 @@
+{
+  "name": "imdb-scroll",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "browser-sync start --server . --files *.js, *.css, *.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/l0rdcafe/imdb-scroll.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/l0rdcafe/imdb-scroll/issues"
+  },
+  "homepage": "https://github.com/l0rdcafe/imdb-scroll#readme",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4"
+  }
+}

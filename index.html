@@ -8,8 +8,6 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
   <link rel="stylesheet" href="style.min.css">
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
 </head>
 
 <body>
@@ -33,7 +31,12 @@
       </ul>
     </div>
   </section>
-  <script src="main.js"></script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.js"></script>
+  <script src="https://jspm.io/system@0.19.js"></script>
+  <script>
+    System.config({ transpiler: 'babel'})
+    System.import("./main.js")
+  </script>
 </body>
 
 </html>
