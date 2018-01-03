@@ -1,24 +1,26 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
+
+import axios from "npm:axios";
+
 const OMDB_URL = "https://www.omdbapi.com";
 const API_KEY = "843baf87";
 
 const getMovies = function(nextPage, query) {
   function getJSON(url) {
-    const headers = new Headers();
-    headers.append("Accept", "application/json");
-
-    return fetch(url, { headers })
-      .then(res => {
-        const contentType = res.headers.get("Content-Type");
-
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          return res.json();
-        }
-        return res.text();
-      })
+    return axios
+      .get(url)
+      .then(res => res.data)
       .catch(err => Promise.reject(err));
   }
   function getMovieByQuery() {
-    return getJSON(`${OMDB_URL}?page=${nextPage}&s=${query}&apiKey=${API_KEY}`);
+    return Promise.race([
+      getJSON(`${OMDB_URL}?page=${nextPage}&s=${query}&apiKey=${API_KEY}`),
+      new Promise((resolve, reject) => {
+        setTimeout(() => reject(new Error("Request Timeout")), 4000);
+      })
+    ]);
   }
 
   function parseSearchResponse(res) {
@@ -48,4 +50,4 @@ const getMovies = function(nextPage, query) {
     .then(getMoviePlots)
     .catch(err => Promise.reject(err));
 };
-export { getMovies };
+export default { getMovies };

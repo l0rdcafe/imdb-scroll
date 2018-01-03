@@ -7,7 +7,7 @@ import $ from "npm:jquery";
 
 import * as model from "./model";
 import * as view from "./view";
-import * as OMDBApi from "./omdb-api";
+import OMDBApi from "./omdb-api";
 
 let isFetching = false;
 
@@ -26,7 +26,7 @@ const processMovies = function(results) {
   } else {
     view.drawErrorNotif(`Could not find results for ${model.state().currentQuery}`);
   }
-  view.render();
+  view.render(model.state);
 };
 
 const handleError = function(e) {
@@ -36,11 +36,11 @@ const handleError = function(e) {
 
 const getMore = function() {
   const moreResults = function() {
-    const pxFromWindowToBtm = 0 + ($(document).height() - $(window).scrollTop() - $(window).height());
-
     if (isFetching) {
       return;
     }
+
+    const pxFromWindowToBtm = 0 + ($(document).height() - $(window).scrollTop() - $(window).height());
 
     if (pxFromWindowToBtm < 50) {
       isFetching = true;
@@ -62,11 +62,11 @@ const getMore = function() {
 
 const newSearch = function() {
   const firstSearch = function() {
-    const movieVal = $("#movie-field").val();
-
     if (isFetching) {
       return;
     }
+
+    const movieVal = $("#movie-field").val();
 
     if (movieVal.match(/^[a-z0-9]+( [a-z0-9]+)*$/i)) {
       view.drawSpinner();

@@ -3,11 +3,10 @@
 /* eslint-disable import/no-unresolved */
 
 import $ from "npm:jquery";
-import * as model from "./model";
 
 const notFound = "assets/notfound.jpg";
-const render = function() {
-  const { movies } = model.state();
+const render = function(state) {
+  const { movies } = state();
   const listChildrenNum = $("#movie-list").children().length;
   const drawMovies = function(movie) {
     let moviePoster;
