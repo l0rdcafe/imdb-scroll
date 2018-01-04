@@ -61,7 +61,7 @@ const getMore = function() {
 };
 
 const newSearch = function() {
-  const firstSearch = function() {
+  const firstSearch = async function() {
     if (isFetching) {
       return;
     }
@@ -75,15 +75,14 @@ const newSearch = function() {
       model.setQuery(movieVal);
       $("#movie-list").val("");
 
-      OMDBApi.getMovies(model.state().nextPage, model.state().currentQuery)
-        .then(res => {
-          processMovies(res);
-          isFetching = false;
-        })
-        .catch(err => {
-          handleError(err);
-          isFetching = false;
-        });
+      try {
+        const response = await OMDBApi.getMovies(model.state().nextPage, model.state().currentQuery);
+        processMovies(response);
+        isFetching = false;
+      } catch (err) {
+        handleError(err);
+        isFetching = false;
+      }
     }
   };
 

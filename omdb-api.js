@@ -10,17 +10,15 @@ const API_KEY = "843baf87";
 const getMovies = function(nextPage, query) {
   function getJSON(url) {
     return axios
-      .get(url)
+      .get(url, {
+        timeout: 4000,
+        headers: { Accept: "application/json" }
+      })
       .then(res => res.data)
       .catch(err => Promise.reject(err));
   }
   function getMovieByQuery() {
-    return Promise.race([
-      getJSON(`${OMDB_URL}?page=${nextPage}&s=${query}&apiKey=${API_KEY}`),
-      new Promise((resolve, reject) => {
-        setTimeout(() => reject(new Error("Request Timeout")), 4000);
-      })
-    ]);
+    return getJSON(`${OMDB_URL}?page=${nextPage}&s=${query}&apiKey=${API_KEY}`);
   }
 
   function parseSearchResponse(res) {
