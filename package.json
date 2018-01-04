@@ -15,9 +15,5 @@
   "bugs": {
     "url": "https://github.com/l0rdcafe/imdb-scroll/issues"
   },
-  "homepage": "https://github.com/l0rdcafe/imdb-scroll#readme",
-  "dependencies": {
-    "jquery": "^3.2.1",
-    "lodash": "^4.17.4"
-  }
+  "homepage": "https://github.com/l0rdcafe/imdb-scroll#readme"
 }
