@@ -1,6 +1,6 @@
 module.exports = {
   entry: {
-    app: "./src/main.js"
+    app: ["babel-polyfill", "./src/main.js"]
   },
   output: {
     path: __dirname,
@@ -13,7 +13,7 @@ module.exports = {
         exclude: /node_modules/,
         loader: "babel-loader",
         query: {
-          presets: ["env"]
+          presets: ["env", "stage-0"]
         }
       }
     ]
