@@ -1,8 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-
-import $ from "npm:jquery";
+const $ = require("jquery");
 
 const notFound = "assets/notfound.jpg";
 const render = function(state) {

@@ -1,13 +1,9 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-
-import _ from "npm:lodash";
-import $ from "npm:jquery";
-
 import * as model from "./model";
 import * as view from "./view";
 import OMDBApi from "./omdb-api";
+
+const _ = require("lodash");
+const $ = require("jquery");
 
 let isFetching = false;
 

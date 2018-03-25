@@ -1,8 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-
-import axios from "npm:axios";
+const axios = require("axios");
 
 const OMDB_URL = "https://www.omdbapi.com";
 const API_KEY = "843baf87";
