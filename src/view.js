@@ -1,4 +1,4 @@
-const $ = require("jquery");
+import $ from "jquery";
 
 const notFound = "assets/notfound.jpg";
 const render = function(state) {

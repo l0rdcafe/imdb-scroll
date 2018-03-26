@@ -1,4 +1,4 @@
-const axios = require("axios");
+import axios from "axios";
 
 const OMDB_URL = "https://www.omdbapi.com";
 const API_KEY = "843baf87";

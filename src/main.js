@@ -1,9 +1,8 @@
+import _ from "lodash";
+import $ from "jquery";
 import * as model from "./model";
 import * as view from "./view";
 import OMDBApi from "./omdb-api";
-
-const _ = require("lodash");
-const $ = require("jquery");
 
 let isFetching = false;
 
