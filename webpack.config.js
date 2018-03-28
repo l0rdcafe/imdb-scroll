@@ -1,4 +1,7 @@
 module.exports = {
+  devServer: {
+    open: true
+  },
   entry: {
     app: ["babel-polyfill", "./src/main.js"]
   },
